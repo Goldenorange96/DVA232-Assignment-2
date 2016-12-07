@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
@@ -10,4 +13,37 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.goldenorange.dva232_assignment_2.MainActivity">
 
+    <Button
+        android:text="Take Photo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="17dp"
+        android:id="@+id/cameraButton"
+        android:onClick="launchCamera"/>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:srcCompat="@color/colorPrimary"
+        android:layout_alignParentTop="true"
+        android:id="@+id/capturedImage"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:text="Negate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/Negate"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true" />
+
+    <Button
+        android:text="Greyscale"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/greyScale"
+        android:layout_alignParentTop="true"
+        android:layout_toStartOf="@+id/Negate" />
 </RelativeLayout>
