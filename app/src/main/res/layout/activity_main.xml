@@ -37,13 +37,15 @@
         android:layout_height="wrap_content"
         android:id="@+id/Negate"
         android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"
+        android:onClick="setNegate"/>
 
     <Button
         android:text="Greyscale"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/greyScale"
+        android:id="@+id/Greyscale"
         android:layout_alignParentTop="true"
-        android:layout_toStartOf="@+id/Negate" />
+        android:layout_toStartOf="@+id/Negate"
+        android:onClick="setGreyscale"/>
 </RelativeLayout>
