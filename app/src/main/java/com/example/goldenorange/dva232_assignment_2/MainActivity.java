@@ -1,16 +1,13 @@
 package com.example.goldenorange.dva232_assignment_2;
 
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,17 +15,19 @@ import android.widget.ImageView;
 import android.widget.Button;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.net.Uri;
-import android.widget.Toast;
-import android.content.Context;
+import android.Manifest;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements OnClickListener{
     String currentPhotoPath = null;
     static final int REQUEST_IMAGE_CAPTURE = 1;
     private ImageView photoView;
     private Bitmap photo;
-    private Drawable testImage;
+    public final String DIR_TAG = "directoryLogTag";
+    private static final int APPDEF_REQUEST_WRITE_FILE = 1;
 
 
     @Override
@@ -64,6 +63,19 @@ public class MainActivity extends AppCompatActivity implements OnClickListener{
             case R.id.Greyscale:
                 photo = setGreyscale(photo);
                 photoView.setImageBitmap(photo);
+                break;
+
+            case R.id.saveButton:
+                if(checkExternalStorage())
+                {
+                    String fileName = new SimpleDateFormat("yyyy.MM.dd G  'At' HH:mm:ss z", Locale.ENGLISH).toString();
+                    File file = new File(getPhotoStorageDir(), fileName);
+                    Log.e(DIR_TAG, file.getAbsolutePath());
+                }
+                else
+                {
+                    Log.e(DIR_TAG, "File was not saved");
+                }
                 break;
 
             default:
@@ -142,5 +154,36 @@ public class MainActivity extends AppCompatActivity implements OnClickListener{
             photoView.setImageBitmap(photo);
         }
     }
+
+    //Check if external storage is readable and writeable. True if mounted else then false.
+
+    public int checkPermission()
+    {
+        boolean hasPermission = (ContextCompat.checkSelfPermission()this, )
+
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, APPDEF_REQUEST_WRITE_FILE);
+    }
+
+
+    public boolean checkExternalStorage()
+    {
+        String state = Environment.getExternalStorageState();
+        return Environment.MEDIA_MOUNTED.equals(state);
+    }
+
+    //Get a storage directory for the photos the user wants saved.
+
+    public File getPhotoStorageDir()
+    {
+        //Get a new directory that is public, with the given directoryname.
+        File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "editedPhotos");
+        //if the directory does exist then log a message saying the below.
+        if(!file.mkdirs())
+        {
+            Log.e(DIR_TAG, "Directory not created");
+        }
+        return file;
+    }
+
 }
 
