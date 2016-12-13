@@ -1,5 +1,6 @@
 package com.example.goldenorange.dva232_assignment_2;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -16,13 +17,17 @@ import android.widget.Button;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.Manifest;
+import android.widget.Toast;
+import android.hardware.Camera;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements OnClickListener{
-    String currentPhotoPath = null;
     static final int REQUEST_IMAGE_CAPTURE = 1;
     private ImageView photoView;
     private Bitmap photo;
@@ -37,8 +42,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener{
 
         Button greyScaleButton = (Button) findViewById(R.id.Greyscale);
         Button negateButton = (Button) findViewById(R.id.Negate);
+        Button saveButton = (Button) findViewById(R.id.saveButton);
         negateButton.setOnClickListener(this);
         greyScaleButton.setOnClickListener(this);
+        saveButton.setOnClickListener(this);
 
         Button cameraButton = (Button) findViewById(R.id.cameraButton);
         photoView = (ImageView) findViewById(R.id.capturedImage);
@@ -68,9 +75,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener{
             case R.id.saveButton:
                 if(checkExternalStorage())
                 {
-                    String fileName = new SimpleDateFormat("yyyy.MM.dd G  'At' HH:mm:ss z", Locale.ENGLISH).toString();
-                    File file = new File(getPhotoStorageDir(), fileName);
-                    Log.e(DIR_TAG, file.getAbsolutePath());
+                    checkPermission();
                 }
                 else
                 {
@@ -139,7 +144,23 @@ public class MainActivity extends AppCompatActivity implements OnClickListener{
         return resultImage;
     }
 
-    public void launchCamera(View view) {
+
+    public static Camera openCamera(View view)
+    {
+        Camera camera = null;
+        try
+        {
+            //Is decrepted but application is made on earlier API.
+            camera = Camera.open();
+        }
+        catch (Exception e)
+        {
+            Log.e("Hello world",e.getMessage());
+        }
+        return camera;
+    }
+
+    /*public void launchCamera(View view) {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
         startActivityForResult(intent, REQUEST_IMAGE_CAPTURE);
@@ -153,36 +174,85 @@ public class MainActivity extends AppCompatActivity implements OnClickListener{
             photo = (Bitmap) extras.get("data");
             photoView.setImageBitmap(photo);
         }
+    }*/
+
+    //Check if permission is granted for write_to_external - For android with the new run-time permission model.
+
+    private void checkPermission()
+    {
+        if((ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED));
+        {
+            Toast toast = Toast.makeText(getApplicationContext(), "Checking Permissions", Toast.LENGTH_LONG);
+            toast.show();
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, APPDEF_REQUEST_WRITE_FILE);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults)
+    {
+        switch (requestCode)
+        {
+            case APPDEF_REQUEST_WRITE_FILE:
+            {
+                if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                {
+                    //Create a unique filename using a timestamp.
+                    String filename = new SimpleDateFormat("yyyy.MM.dd'T'HH:mm:ss", Locale.ENGLISH).format(new Date());
+                    String fileName = filename + ".jpg";
+                    File newFile = new File(getPhotoStorageDir(), fileName);
+
+                    try
+                    {
+                        //create a fileOutput stream and compress the image so it's writable to a file.
+                        FileOutputStream f = new FileOutputStream(newFile);
+                        if(photo.compress(Bitmap.CompressFormat.JPEG, 100, f))
+                        {
+                            Toast toast = Toast.makeText(getApplicationContext(), "Compression completed", Toast.LENGTH_LONG);
+                            toast.show();
+                        }
+                        else
+                        {
+                            Toast toast = Toast.makeText(getApplicationContext(), "Compressition Failed", Toast.LENGTH_LONG);
+                            toast.show();
+                        }
+                    }
+
+                    catch (IOException e)
+                    {
+                        Log.e(DIR_TAG, e.getMessage());
+                    }
+
+
+                    Log.e(DIR_TAG, newFile.getAbsolutePath());
+                }
+                else
+                {
+                    Toast toast = Toast.makeText(getApplicationContext(), "Permission was not granted", Toast.LENGTH_LONG);
+                    toast.show();
+                }
+            }
+        }
     }
 
     //Check if external storage is readable and writeable. True if mounted else then false.
-
-    public int checkPermission()
-    {
-        boolean hasPermission = (ContextCompat.checkSelfPermission()this, )
-
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, APPDEF_REQUEST_WRITE_FILE);
-    }
-
-
-    public boolean checkExternalStorage()
+    private boolean checkExternalStorage()
     {
         String state = Environment.getExternalStorageState();
         return Environment.MEDIA_MOUNTED.equals(state);
     }
 
-    //Get a storage directory for the photos the user wants saved.
-
+    //Get the storage directory for the photos the user wants saved. Creates one if not existing.
     public File getPhotoStorageDir()
     {
         //Get a new directory that is public, with the given directoryname.
-        File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "editedPhotos");
+        File photoDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getPath(), "editedPhotos");
         //if the directory does exist then log a message saying the below.
-        if(!file.mkdirs())
+        if(!photoDir.mkdirs())
         {
             Log.e(DIR_TAG, "Directory not created");
         }
-        return file;
+        return photoDir;
     }
 
 }
