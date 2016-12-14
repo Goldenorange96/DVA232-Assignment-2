@@ -14,11 +14,11 @@
     tools:context="com.example.goldenorange.dva232_assignment_2.MainActivity">
 
     <ImageView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         app:srcCompat="@android:color/background_light"
         android:layout_alignParentTop="true"
         android:id="@+id/capturedImage"
-        android:layout_height="240dp" />
+        android:layout_height="400dp" />
 
     <Button
         android:text="Save"
@@ -33,7 +33,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/Greyscale"
-        android:onClick="setGreyscale"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true" />
 
@@ -42,7 +41,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/cameraButton"
-        android:onClick="openCamera"
+        android:onClick="launchCamera"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true" />
 
